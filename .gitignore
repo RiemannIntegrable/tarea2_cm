@@ -9,6 +9,7 @@
 !*.ipynb
 !*.tex
 !*.png
+!*.gitkeep
 
 # Permitir archivos de configuración del proyecto
 !.gitignore
