@@ -1,0 +1,9 @@
+\section{Introducción}
+
+Este trabajo implementa el Ejercicio 1 de la Tarea 2: aproximación del número de $q$-coloraciones en lattices $K \times K$ usando MCMC, basado en el Theorem 9.1 visto en clase.
+
+Una $q$-coloración de un grafo es una asignación de uno de $q$ colores a cada vértice tal que vértices adyacentes tengan colores distintos. El número total de $q$-coloraciones válidas se denota $Z(G,q)$.
+
+Para grafos pequeños es posible calcular $Z(G,q)$ exactamente, pero para lattices grandes el costo computacional crece exponencialmente ($q^n$ configuraciones posibles). El Theorem 9.1 garantiza que existe un algoritmo MCMC que aproxima $Z(G,q)$ en tiempo polinomial cuando $q > 2d$, donde $d$ es el grado máximo del grafo.
+
+Implementamos el muestreador de Gibbs con path sampling telescópico para estimar $Z(G,q)$ y comparamos con valores exactos cuando es computacionalmente factible.

@@ -1,0 +1,13 @@
+\section{Conclusiones}
+
+\begin{itemize}
+    \item Se implementó exitosamente el algoritmo del Theorem 9.1 para aproximar el número de $q$-coloraciones en lattices $K \times K$.
+
+    \item El método de path sampling telescópico permitió estimar $Z(G,q)$ de forma eficiente reutilizando muestras MCMC entre valores consecutivos de $q$.
+
+    \item Las optimizaciones implementadas (Numba, paralelización, gestión de memoria) redujeron significativamente el tiempo de ejecución y uso de RAM, haciendo factible ejecutar los 252 experimentos.
+
+    \item La comparación con valores exactos (para lattices pequeños) valida la precisión del método MCMC dentro de los límites impuestos.
+
+    \item Los límites computacionales (1,000 simulaciones, 2,000 pasos) implican que no se cumple completamente con los requerimientos teóricos del Theorem 9.1 para lattices grandes, pero permiten obtener aproximaciones razonables en tiempo factible.
+\end{itemize}

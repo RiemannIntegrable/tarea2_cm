@@ -1,0 +1,140 @@
+\section{Implementación}
+
+\subsection{Parámetros experimentales}
+
+Según lo solicitado en la tarea, los parámetros utilizados son:
+
+\begin{itemize}
+    \item \textbf{Tamaño del lattice:} $K \in \{3, 4, \ldots, 20\}$ (18 valores)
+    \item \textbf{Número de colores:} $q \in \{2, 3, \ldots, 15\}$ (14 valores)
+    \item \textbf{Precisión:} $\varepsilon = 0.5$
+    \item \textbf{Número de simulaciones:} Máximo 1,000 por experimento
+    \item \textbf{Pasos de Gibbs:} Máximo 2,000 por simulación
+    \item \textbf{Total de experimentos:} $18 \times 14 = 252$
+\end{itemize}
+
+\subsection{Funciones principales implementadas}
+
+\subsubsection{Muestreador de Gibbs}
+
+El núcleo del algoritmo es el muestreador de Gibbs optimizado con Numba:
+
+\begin{lstlisting}[caption={Paso del Gibbs Sampler optimizado}]
+@njit(fastmath=True, cache=True, inline='always')
+def gibbs_sampler_step_optimized(coloring, adj_list, degrees, q, n,
+                                  node_order, used, valid_colors):
+    """Un paso del Gibbs Sampler SIN ALLOCATIONS."""
+    for idx in range(n):
+        node = node_order[idx]
+
+        # Marcar colores usados por vecinos
+        used[:] = False
+        for i in range(degrees[node]):
+            neighbor = adj_list[node, i]
+            if neighbor >= 0:
+                used[coloring[neighbor]] = True
+
+        # Recolectar colores validos
+        n_valid = 0
+        for c in range(q):
+            if not used[c]:
+                valid_colors[n_valid] = c
+                n_valid += 1
+
+        # Elegir uniformemente entre colores validos
+        if n_valid > 0:
+            chosen_idx = np.random.randint(0, n_valid)
+            coloring[node] = valid_colors[chosen_idx]
+\end{lstlisting}
+
+La función ejecuta las simulaciones en paralelo:
+
+\begin{lstlisting}[caption={Ejecución paralela de simulaciones}]
+@njit(parallel=True, fastmath=True, cache=True)
+def run_gibbs_batch_parallel(K, q, n_steps, seeds,
+                             adj_list, degrees):
+    n_sims = len(seeds)
+    n = K * K
+    colorings = np.empty((n_sims, n), dtype=np.int32)
+
+    for i in prange(n_sims):  # Paralelizacion
+        colorings[i] = run_single_gibbs_simulation(
+            K, q, n_steps, seeds[i], adj_list, degrees
+        )
+
+    return colorings
+\end{lstlisting}
+
+\subsubsection{Path Sampling Telescópico}
+
+La función de peso para el path sampling:
+
+\begin{lstlisting}[caption={Cálculo de pesos para path sampling}]
+@njit(fastmath=True, cache=True)
+def compute_log_available_colors_single(coloring, adj_list,
+                                        degrees, q, K,
+                                        seen_colors):
+    n = K * K
+    log_sum = 0.0
+
+    for node in range(n):
+        seen_colors[:] = False
+
+        for i in range(degrees[node]):
+            neighbor = adj_list[node, i]
+            if neighbor >= 0:
+                seen_colors[coloring[neighbor]] = True
+
+        available = 0
+        for c in range(q):
+            if not seen_colors[c]:
+                available += 1
+
+        if available > 0:
+            log_sum += np.log(float(available))
+
+    return log_sum
+\end{lstlisting}
+
+Y la función principal del método telescópico:
+
+\begin{lstlisting}[caption={Path sampling telescópico}]
+def path_sampling_telescopic(all_colorings_dict, K, q_max=15):
+    results = {}
+
+    # Crear lista de adyacencia UNA VEZ
+    adj_list, degrees = create_adjacency_list(K)
+
+    # Base: Z(G,2)
+    est_2 = estimate_partition_function_single_q(
+        all_colorings_dict[2], K, 2, adj_list, degrees
+    )
+    Z_current = est_2['Z_estimate']
+    results[2] = {'Z_estimate': Z_current}
+
+    # Telescopico: q = 3, ..., q_max
+    for q in range(3, q_max + 1):
+        est_q = estimate_partition_function_single_q(
+            all_colorings_dict[q], K, q, adj_list, degrees
+        )
+        est_q_minus_1 = estimate_partition_function_single_q(
+            all_colorings_dict[q], K, q-1, adj_list, degrees
+        )
+
+        ratio = est_q['Z_estimate'] / est_q_minus_1['Z_estimate']
+        Z_current *= ratio  # Multiplicacion telescopica
+        results[q] = {'Z_estimate': Z_current}
+
+    return results
+\end{lstlisting}
+
+\subsection{Optimizaciones clave}
+
+Para hacer el código eficiente se implementaron:
+
+\begin{itemize}
+    \item \textbf{Compilación JIT:} Decorador \texttt{@njit} compila a código máquina
+    \item \textbf{Paralelización:} Uso de \texttt{prange} para procesamiento paralelo
+    \item \textbf{Pre-alocación:} Matrices pre-alocadas evitan copias de memoria
+    \item \textbf{Gestión de memoria:} Coloraciones se guardan a disco temporalmente para liberar RAM
+\end{itemize}

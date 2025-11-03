@@ -18,7 +18,7 @@
 \rhead{Facultad De Ciencias}
 \cfoot{\thepage\ de \pageref{LastPage}}
 \lfoot{Departamento De Matemáticas}
-\rfoot{Derivados de renta variable 2025-I}
+\rfoot{Cadenas de Markov 2025-I}
 \renewcommand{\headrulewidth}{0.08pt}
 \renewcommand{\footrulewidth}{0.08pt}
 
@@ -26,7 +26,7 @@
 \fancypagestyle{firstpage}{
   \renewcommand{\headrulewidth}{0cm}
   \cfoot{\thepage\ de \pageref{LastPage}}
-  \lfoot{Modelo GARCH}
+  \lfoot{Tarea 2}
   \rfoot{\today}
   \lhead{}
   \rhead{}
@@ -40,10 +40,10 @@
            &  &  & Guillermo Murillo Tirado \\
            &  {\large Departamento de matemáticas} &  &  \\
            &  &  & \\
-           & {\large Derivados de renta variable 2025-I} &  & \textbf{Docente:} \\
-           &  &  & Alejandra Sanchez Vásquez \\
-           & {\Large Modelo GARCH para la volatilidad} &  & asanchezva@unal.edu.co \\
-           &  &  &  \\
+           & {\large Cadenas de Markov 2025-I} &  & \textbf{Docente:} \\
+           &  &  & Freddy Hernandez \\
+           & {\Large Path Sampling Telescópico} &  & fohernandezr@unal.edu.co \\
+           & {\Large para q-Coloraciones} &  &  \\
            \hline
       \end{tabular}\\
   }
@@ -77,3 +77,27 @@
 %% ==== ESPACIADO Y FORMATO INICIAL ====
 % Espaciado inicial en el documento
 \newcommand{\espacioinicial}{\vspace*{10\baselineskip}}
+
+%% ==== CONFIGURACIÓN DE LISTINGS ====
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    stringstyle=\color{red},
+    commentstyle=\color{gray}\itshape,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    rulecolor=\color{black!30},
+    breaklines=true,
+    breakatwhitespace=false,
+    tabsize=4,
+    captionpos=b,
+    escapeinside={(*@}{@*)},
+    morekeywords={self,True,False,None,return,def,class,if,else,elif,for,while,with,as,import,from}
+}
+
+\lstset{style=pythonstyle}

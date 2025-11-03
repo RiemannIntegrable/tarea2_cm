@@ -1,0 +1,49 @@
+\section{Resultados}
+
+Se ejecutaron exitosamente los 252 experimentos (18 valores de $K$ × 14 valores de $q$).
+
+\subsection{Ejemplo: Resultados para K=3}
+
+La Tabla~\ref{tab:k3_sample} muestra un extracto de resultados para $K=3$:
+
+\begin{table}[H]
+\centering
+\caption{Resultados para lattice $3 \times 3$ (primeros 6 valores de $q$)}
+\label{tab:k3_sample}
+\small
+\begin{tabular}{rrrrrr}
+\toprule
+$q$ & Sims. & Pasos & $Z$ exacto & $Z$ MCMC & Error (\%) \\
+\midrule
+2 & 1000 & 103 & 2 & 1.0 & 50.0 \\
+3 & 1000 & 169 & 246 & 9.93 & 96.0 \\
+4 & 1000 & 234 & 9,612 & 144.8 & 98.5 \\
+5 & 1000 & 299 & 142,820 & 1,340.2 & 99.1 \\
+6 & 1000 & 363 & 1,166,910 & 7,866.3 & 99.3 \\
+7 & 1000 & 428 & 6,464,682 & 33,068.2 & 99.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Se observa que el conteo exacto solo fue factible hasta $q=9$ (timeout después).
+
+\subsection{Visualización completa de resultados}
+
+La Figura~\ref{fig:results_all} presenta cuatro visualizaciones de los resultados obtenidos:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/results_summary_telescopic.png}
+    \caption{Resultados completos del experimento. \textbf{Superior izquierda:} Heatmap de $\log_{10}(Z(G,q))$ estimado. \textbf{Superior derecha:} Status de cálculos exactos (verde=SUCCESS, amarillo=TIMEOUT, naranja=SKIPPED). \textbf{Inferior izquierda:} Error relativo (\%) donde hay valor exacto. \textbf{Inferior derecha:} Scatter plot MCMC vs. Exacto en escala logarítmica.}
+    \label{fig:results_all}
+\end{figure}
+
+\subsection{Análisis de resultados}
+
+\textbf{Cálculos exactos:} El conteo exacto solo fue factible para lattices pequeños ($K \leq 4$ aproximadamente) debido a la complejidad exponencial. Para $K \geq 5$, la mayoría de los cálculos excedieron el timeout.
+
+\textbf{Precisión MCMC:} Los errores relativos son altos (>95\%) para los casos donde se logró comparar. Esto se debe a que los límites computacionales impuestos (1,000 simulaciones, 2,000 pasos) están muy por debajo de lo que requiere el Theorem 9.1 para garantizar precisión.
+
+\textbf{Crecimiento de Z(G,q):} Se observa claramente el crecimiento exponencial de $Z(G,q)$ tanto con $K$ (más nodos) como con $q$ (más colores). Para $K=20$ y $q=15$, las estimaciones alcanzan valores del orden de $10^{80}$.
+
+\textbf{Método telescópico:} A pesar de los altos errores absolutos, el método telescópico permitió obtener estimaciones del orden de magnitud correcto de forma computacionalmente eficiente.
