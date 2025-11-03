@@ -9,9 +9,9 @@
 !*.ipynb
 !*.tex
 !*.png
-!*.pdf
 
 # Permitir archivos de configuración del proyecto
 !.gitignore
 !README.md
 !environment.yml
+!tarea2.pdf
