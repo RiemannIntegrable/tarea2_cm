@@ -1,0 +1,24 @@
+\documentclass{article}
+
+% Importar configuración
+\input{config/packages}
+\input{config/commands}
+\input{config/doc_style}
+
+% Información del documento
+\date{\today}
+\begin{document}
+\thispagestyle{firstpage}
+\vspace*{8\baselineskip}
+\graphicspath{ {./figures/} }
+
+% Tabla de contenidos
+\renewcommand{\contentsname}{}
+\begin{cuadrocontenido}
+  \setcounter{tocdepth}{2}
+  \tableofcontents
+\end{cuadrocontenido}
+
+Hola
+
+\end{document}
