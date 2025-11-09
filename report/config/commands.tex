@@ -161,9 +161,31 @@
     boxpos=t
 }
 
+% Estilo personalizado para Python (código de implementación)
+\lstdefinestyle{PyCode}{
+    language=Python,
+    basicstyle=\small\ttfamily\linespread{1.1}\selectfont,
+    backgroundcolor=\color{black!3},
+    frame=leftline,
+    framerule=3pt,
+    rulecolor=\color{teal!60!blue},
+    breaklines=true,
+    captionpos=b,
+    numberstyle=\tiny\color{gray!80!black},
+    numbers=left,
+    aboveskip=1.2em,
+    belowskip=1.2em,
+    xleftmargin=8pt,
+    xrightmargin=5pt,
+    framesep=3pt,
+    showstringspaces=false,
+    tabsize=4,
+    escapeinside={(*@}{@*)}
+}
+
 % Configuración por defecto para listados
 \lstset{
-    language=R,    
+    language=R,
     basicstyle=\small\ttfamily\linespread{1.1}\selectfont,
     backgroundcolor=\color{black!3},
     frame=leftline,

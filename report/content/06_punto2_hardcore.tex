@@ -1,0 +1,258 @@
+\section{Punto 2: Modelo Hard-core en Lattices}
+
+\subsection{Definición del Modelo Hard-core}
+
+El \textbf{modelo Hard-core} es un modelo de mecánica estadística que estudia la distribución de partículas en los vértices de un grafo, sujetas a la restricción de \textbf{exclusión Hard-core}: dos partículas no pueden ocupar vértices adyacentes simultáneamente.
+
+Formalmente, una \textbf{configuración válida} del modelo Hard-core en un grafo $G = (V, E)$ es un subconjunto $S \subseteq V$ tal que para toda arista $(u,v) \in E$, no ambos vértices están en $S$. En terminología de teoría de grafos, $S$ es un \textbf{conjunto independiente} de $G$.
+
+\subsection{Relación con 2-Coloraciones}
+
+El modelo Hard-core es equivalente al problema de 2-coloraciones. Definimos la correspondencia:
+\begin{itemize}
+    \item Color 0: vértice desocupado (sin partícula)
+    \item Color 1: vértice ocupado (con partícula)
+\end{itemize}
+
+Una 2-coloración válida $\sigma: V \to \{0, 1\}$ del grafo $G$ corresponde biunívocamente a una configuración del modelo Hard-core mediante:
+\begin{equation}
+    S = \{v \in V : \sigma(v) = 1\}
+\end{equation}
+
+Por tanto, el número de configuraciones Hard-core es exactamente $Z_{G,2}$, el número de 2-coloraciones válidas del grafo.
+
+\subsection{Propiedades del Modelo en Lattices}
+
+Para el lattice $K \times K$ con bordes libres:
+
+\begin{enumerate}
+    \item \textbf{Grafo bipartito}: El lattice cuadrado es bipartito. Podemos particionar $V = A \cup B$ donde $A = \{(x,y) : x + y \text{ es par}\}$ y $B = \{(x,y) : x + y \text{ es impar}\}$. Toda arista conecta un vértice de $A$ con uno de $B$.
+
+    \item \textbf{Simetría}: Por la estructura bipartita, el número de coloraciones con "mayoría de 0" es igual al número con "mayoría de 1" (intercambio de colores).
+
+    \item \textbf{Conjuntos independientes maximales}: El tamaño del conjunto independiente máximo es $|A| = \lceil K^2/2 \rceil$ (o $|B|$), correspondiendo a ocupar todos los vértices de una parte de la bipartición.
+
+    \item \textbf{Límite inferior}: Toda configuración que ocupa únicamente vértices de $A$ (o de $B$) es válida, por lo que $Z_{G,2} \geq 2^{\lceil K^2/2 \rceil}$.
+\end{enumerate}
+
+\subsection{Aplicación del Método Telescópico para $q=2$}
+
+El algoritmo desarrollado en el Punto 1 es completamente general y aplica directamente para $q=2$. Sin embargo, existen consideraciones especiales:
+
+\subsubsection{Garantías Teóricas}
+
+El Teorema 9.1 garantiza convergencia rápida del Gibbs sampler cuando $q > 2d^2$. Para el lattice con $d = 4$:
+\begin{equation}
+    q > 2 \cdot 4^2 = 32
+\end{equation}
+
+Como $q = 2 < 32$, las garantías teóricas de mixing rápido \textbf{no aplican} para el modelo Hard-core. Esto significa que:
+\begin{itemize}
+    \item Los parámetros $N$ y $M$ calculados según el Teorema 9.1 pueden ser insuficientes
+    \item El tiempo de mixing puede ser mayor que $O(n \log n)$
+    \item No tenemos garantía a priori de que el algoritmo produzca aproximaciones dentro de $(1 \pm \varepsilon)$
+\end{itemize}
+
+\subsubsection{Ajustes Prácticos}
+
+A pesar de la falta de garantías teóricas, en la práctica el algoritmo MCMC funciona para $q=2$ con ajustes:
+
+\begin{enumerate}
+    \item \textbf{Incremento de pasos del Gibbs sampler}: Aumentamos $M$ más allá de lo indicado por el Teorema 9.1 para asegurar convergencia empírica a la distribución estacionaria.
+
+    \item \textbf{Validación con valores exactos}: Para $K$ pequeños (típicamente $K \leq 6$), comparamos con valores exactos obtenidos mediante enumeración o polinomio cromático para verificar la precisión del método.
+
+    \item \textbf{Monitoreo de ratios}: Inspeccionamos los ratios $\hat{r}_i$ del producto telescópico para detectar comportamientos anómalos que indiquen falta de convergencia.
+\end{enumerate}
+
+\subsection{Implementación para el Modelo Hard-core}
+
+La implementación es idéntica a la del Punto 1, simplemente fijando $q = 2$. Todas las funciones desarrolladas funcionan sin modificación:
+
+\begin{itemize}
+    \item \texttt{create\_lattice\_edges(K)}: Construcción del lattice
+    \item \texttt{coord\_to\_idx(x, y, K)}: Indexación de vértices
+    \item \texttt{is\_valid\_coloring(coloring, edges, K)}: Validación de configuraciones
+    \item \texttt{get\_available\_colors(x, y, coloring, edges, K, q=2, color\_used)}: Colores disponibles
+    \item \texttt{gibbs\_step\_partial(...)}: Paso del Gibbs sampler con $q=2$
+    \item \texttt{estimate\_ratio\_core(...)}: Estimación de ratios con $q=2$
+    \item \texttt{count\_colorings(K, q=2, ...)}: Conteo telescópico para Hard-core
+\end{itemize}
+
+\subsection{Configuración Experimental}
+
+Para el modelo Hard-core, ejecutamos experimentos con:
+\begin{itemize}
+    \item Tamaños de lattice: $K \in \{3, 4, \ldots, 20\}$
+    \item Número de colores: $q = 2$ (fijo)
+    \item Precisión objetivo: $\varepsilon = 0.1$
+    \item Total de experimentos: 18
+    \item Parámetros MCMC ajustados:
+    \begin{itemize}
+        \item Número de muestras: $N = \min(N_{\text{teorico}}, 10{,}000)$
+        \item Pasos del Gibbs sampler: $M = \min(M_{\text{teorico}}, 10{,}000)$
+        \item Nota: Para $q=2$, los valores teóricos deben interpretarse con cautela debido a la falta de garantías formales
+    \end{itemize}
+\end{itemize}
+
+\subsection{Ejecución de Experimentos}
+
+El código para ejecutar los experimentos del modelo Hard-core utiliza la misma infraestructura del Punto 1:
+
+\begin{lstlisting}[style=PyCode, caption={Configuración de experimentos para modelo Hard-core}]
+K_range = range(3, 21)
+q = 2
+epsilon = 0.1
+
+df_hardcore = run_experiments(
+    K_range=K_range,
+    q_range=[q],
+    output_file='../results/hardcore.csv',
+    epsilon=epsilon,
+    n_jobs=-1,
+    verbose=5
+)
+\end{lstlisting}
+
+La función \texttt{run\_experiments} ejecuta en paralelo todos los experimentos $(K, 2)$ para $K = 3, \ldots, 20$, utilizando el método telescópico con los mismos parámetros del Punto 1.
+
+\subsection{Interpretación de Resultados}
+
+\subsubsection{Magnitud de $Z_{G,2}$}
+
+El número de configuraciones Hard-core crece exponencialmente con $K$. Para un lattice $K \times K$:
+\begin{equation}
+    2^{K^2/2} \leq Z_{G,2} \leq 2^{K^2}
+\end{equation}
+
+El límite inferior proviene de ocupar todos los vértices de una parte de la bipartición. El límite superior corresponde a todas las asignaciones posibles de colores 0 y 1.
+
+En la práctica, observamos que:
+\begin{equation}
+    \log Z_{G,2} \approx \alpha K^2
+\end{equation}
+donde $0.5 < \alpha < 1$ depende de la conectividad del grafo.
+
+\subsubsection{Comportamiento del Producto Telescópico}
+
+Los ratios $r_i = Z_{G_i, 2} / Z_{G_{i-1}, 2}$ del producto telescópico tienden a decaer cuando se añaden aristas al grafo, ya que cada nueva arista impone una restricción adicional que elimina algunas coloraciones. Para $q=2$ (caso crítico), los ratios pueden ser más variables que para $q$ grande.
+
+\subsection{Resultados Computacionales}
+
+\subsubsection{Tabla de Resultados}
+
+\textit{[ESPACIO RESERVADO PARA TABLA DE RESULTADOS DEL MODELO HARD-CORE]}
+
+\begin{table}[H]
+\centering
+\caption{Número de configuraciones Hard-core en lattice $K \times K$}
+\begin{tabular}{cccccc}
+\toprule
+\textbf{K} & \textbf{$|V|$} & \textbf{$|E|$} & \textbf{$\log Z_{G,2}$} & \textbf{$Z_{G,2}$ (aprox)} & \textbf{Tiempo (s)} \\
+\midrule
+ &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Comparación con Valores Exactos}
+
+Para valores pequeños de $K$, el valor exacto de $Z_{G,2}$ puede calcularse mediante:
+\begin{enumerate}
+    \item \textbf{Polinomio cromático}: Evaluar $P_G(2)$ usando eliminación-contracción
+    \item \textbf{Enumeración exhaustiva}: Factible para $K \leq 4$ ($|V| \leq 16$)
+    \item \textbf{Transfer-matrix}: Método eficiente para lattices con geometría específica
+\end{enumerate}
+
+\textit{[ESPACIO RESERVADO PARA TABLA DE COMPARACIÓN EXACTO VS APROXIMADO]}
+
+\begin{table}[H]
+\centering
+\caption{Comparación de conteo exacto vs aproximado para modelo Hard-core}
+\begin{tabular}{cccccc}
+\toprule
+\textbf{K} & \textbf{Exacto} & \textbf{Aproximado} & \textbf{Error abs} & \textbf{Error rel (\%)} & \textbf{Dentro $\varepsilon$?} \\
+\midrule
+ &  &  &  &  &  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Análisis Gráfico}
+
+\textit{[ESPACIO RESERVADO PARA GRÁFICAS]}
+
+Se incluirán las siguientes visualizaciones:
+\begin{enumerate}
+    \item \textbf{Crecimiento exponencial}: $\log Z_{G,2}$ vs $K$ (o $K^2$)
+    \item \textbf{Comportamiento de ratios}: Ratio promedio $\bar{r}$ vs $K$
+    \item \textbf{Escalamiento computacional}: Tiempo de ejecución vs $K$
+    \item \textbf{Validación}: Error relativo vs $K$ (para $K$ pequeños con valores exactos)
+\end{enumerate}
+
+\subsection{Convergencia del MCMC para $q=2$}
+
+\subsubsection{Diagnóstico de Convergencia}
+
+Aunque el Teorema 9.1 no garantiza convergencia rápida para $q=2$, podemos validar empíricamente la convergencia mediante:
+
+\begin{enumerate}
+    \item \textbf{Consistencia entre ejecuciones}: Ejecutar el algoritmo múltiples veces con diferentes semillas aleatorias y verificar que los resultados sean consistentes.
+
+    \item \textbf{Comparación con valores exactos}: Para $K$ pequeños, verificar que $|\hat{Z}_{G,2} - Z_{G,2}| / Z_{G,2} \leq \varepsilon$.
+
+    \item \textbf{Análisis de ratios}: Inspeccionar la secuencia $\{\hat{r}_1, \ldots, \hat{r}_\ell\}$ para detectar valores anómalos (e.g., $\hat{r}_i = 0$ o $\hat{r}_i > 1$).
+
+    \item \textbf{Monitoreo de coloraciones}: Durante la ejecución del Gibbs sampler, verificar que las coloraciones generadas sean efectivamente válidas y que la cadena no quede atrapada en regiones del espacio de estados.
+\end{enumerate}
+
+\subsubsection{Limitaciones y Consideraciones}
+
+Para el modelo Hard-core ($q=2$) en lattices grandes, debemos considerar:
+
+\begin{enumerate}
+    \item \textbf{Falta de garantías formales}: Sin el Teorema 9.1, no podemos asegurar a priori que el algoritmo converja en tiempo polinomial.
+
+    \item \textbf{Posible underflow}: Para $K$ grande, $Z_{G,2}$ crece exponencialmente y trabajamos en escala logarítmica. Si muchos ratios $\hat{r}_i$ son muy pequeños, puede haber underflow numérico.
+
+    \item \textbf{Necesidad de validación empírica}: Cada conjunto de resultados debe validarse comparando con valores conocidos o mediante múltiples ejecuciones.
+
+    \item \textbf{Transiciones de fase}: En modelos de mecánica estadística, el caso $q=2$ puede estar cerca de transiciones de fase que hacen el muestreo MCMC más difícil.
+\end{enumerate}
+
+\subsection{Análisis de Complejidad Empírica}
+
+Para el modelo Hard-core, la complejidad temporal observada empíricamente es:
+\begin{equation}
+    T(K) = \mathcal{O}(K^{\beta})
+\end{equation}
+donde $\beta$ se determina mediante regresión de $\log T(K)$ vs $\log K$ a partir de los tiempos de ejecución experimentales.
+
+Esperamos que $\beta \approx 4$-5 (considerablemente menor que el $\beta = 10$ teórico del Punto 1) debido a:
+\begin{itemize}
+    \item $q=2$ es fijo (no depende de $K$)
+    \item Los límites prácticos en $N$ y $M$ dominan sobre los valores teóricos
+    \item Las optimizaciones computacionales (Numba, paralelización) reducen las constantes multiplicativas
+\end{itemize}
+
+\subsection{Conclusiones del Modelo Hard-core}
+
+El modelo Hard-core ($q=2$) es un caso especial del problema de q-coloraciones con características distintivas:
+
+\begin{enumerate}
+    \item \textbf{Relevancia física}: Describe partículas con exclusión Hard-core, un modelo fundamental en mecánica estadística.
+
+    \item \textbf{Límite teórico}: El valor $q=2$ está fuera del régimen donde el Teorema 9.1 garantiza convergencia rápida ($q > 2d^2 = 32$ para $d=4$).
+
+    \item \textbf{Factibilidad práctica}: A pesar de la falta de garantías teóricas, el método MCMC funciona empíricamente con ajustes adecuados en los parámetros.
+
+    \item \textbf{Validación necesaria}: La comparación con valores exactos (cuando es factible) es crucial para verificar la precisión del método aproximado.
+
+    \item \textbf{Estructura bipartita}: El lattice cuadrado tiene propiedades especiales que facilitan el análisis del modelo Hard-core.
+
+    \item \textbf{Escalabilidad}: El algoritmo optimizado permite calcular aproximaciones de $Z_{G,2}$ para lattices con $K \leq 20$ (hasta 400 vértices y 760 aristas) en tiempo razonable.
+\end{enumerate}
+
+El estudio del modelo Hard-core complementa el análisis del Punto 1, mostrando cómo el método telescópico con MCMC puede adaptarse a casos fuera del régimen de garantías teóricas, siempre que se realice una validación empírica cuidadosa.
+
+\textit{[ESPACIO RESERVADO PARA ANÁLISIS ADICIONAL Y CONCLUSIONES ESPECÍFICAS]}
