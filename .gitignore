@@ -14,6 +14,7 @@
 !notebooks/colorings_optimizado.ipynb
 !ALGORITMO_IMPLEMENTACION.md
 !OPTIMIZACIONES.md
+!notebooks/colorings_optimizado.html
 
 # Permitir archivos de configuración del proyecto
 !.gitignore
