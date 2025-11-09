@@ -10,8 +10,10 @@
 !*.tex
 !*.png
 !*.gitkeep
-!results/colorings.csv
-!notebooks/colorings.ipynb
+!results/colorings_optimizado.csv
+!notebooks/colorings_optimizado.ipynb
+!ALGORITMO_IMPLEMENTACION.md
+!OPTIMIZACIONES.md
 
 # Permitir archivos de configuración del proyecto
 !.gitignore
