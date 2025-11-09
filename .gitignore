@@ -10,10 +10,10 @@
 !*.tex
 !*.png
 !*.gitkeep
+!results/colorings.csv
+!notebooks/colorings.ipynb
 
 # Permitir archivos de configuración del proyecto
 !.gitignore
 !README.md
 !environment.yml
-!tarea2.pdf
-!teoria_tarea2.pdf
